@@ -1,0 +1,201 @@
+{
+  "_설명": "수집 계획. collector.py --plan 으로 하루 호출 수를 확인한 뒤 고치세요. interval_min = 몇 분마다, windows = 수집 시간대(KST), days = weekday|weekend|all",
+  "start_date": "2026-11-16",
+  "end_date": "2026-11-22",
+  "daily_cap": {
+    "subway": 850,
+    "seoul_bus": 900,
+    "incheon_bus": 900
+  },
+  "jobs": [
+    {
+      "name": "출근퇴근_통학노선_위치",
+      "api": "subway_position",
+      "targets": [
+        "1호선",
+        "2호선"
+      ],
+      "days": "weekday",
+      "windows": [
+        [
+          "07:00",
+          "10:00"
+        ],
+        [
+          "17:00",
+          "20:00"
+        ]
+      ],
+      "interval_min": 3
+    },
+    {
+      "name": "출근퇴근_대안노선_위치",
+      "api": "subway_position",
+      "targets": [
+        "경의중앙선",
+        "6호선"
+      ],
+      "days": "weekday",
+      "windows": [
+        [
+          "07:00",
+          "10:00"
+        ],
+        [
+          "17:00",
+          "20:00"
+        ]
+      ],
+      "interval_min": 6
+    },
+    {
+      "name": "출근퇴근_환승역_도착예측",
+      "api": "subway_arrival",
+      "targets": [
+        "동암",
+        "신도림",
+        "용산"
+      ],
+      "days": "weekday",
+      "windows": [
+        [
+          "07:00",
+          "10:00"
+        ],
+        [
+          "17:00",
+          "20:00"
+        ]
+      ],
+      "interval_min": 6
+    },
+    {
+      "name": "낮시간_기준선_위치",
+      "api": "subway_position",
+      "targets": [
+        "1호선",
+        "2호선",
+        "경의중앙선",
+        "6호선"
+      ],
+      "days": "all",
+      "windows": [
+        [
+          "10:00",
+          "17:00"
+        ]
+      ],
+      "interval_min": 30
+    },
+    {
+      "name": "주말오전_통학노선_위치",
+      "api": "subway_position",
+      "targets": [
+        "1호선",
+        "2호선",
+        "경의중앙선"
+      ],
+      "days": "weekend",
+      "windows": [
+        [
+          "08:00",
+          "10:00"
+        ]
+      ],
+      "interval_min": 15
+    },
+    {
+      "name": "공연장_저녁_위치",
+      "_공연장": "고척돔=구일(1), KSPO DOME·올림픽홀=올림픽공원(5·9), 잠실실내·잠실학생=종합운동장(2·9), 장충체육관=동대입구(3), 블루스퀘어=한강진(6)",
+      "api": "subway_position",
+      "targets": [
+        "2호선",
+        "3호선",
+        "5호선",
+        "9호선"
+      ],
+      "days": "all",
+      "windows": [
+        [
+          "18:00",
+          "22:30"
+        ]
+      ],
+      "interval_min": 8
+    },
+    {
+      "name": "공연장_저녁_1호선_6호선_위치",
+      "api": "subway_position",
+      "targets": [
+        "1호선",
+        "6호선"
+      ],
+      "days": "all",
+      "windows": [
+        [
+          "20:00",
+          "22:30"
+        ]
+      ],
+      "interval_min": 10
+    },
+    {
+      "name": "주말_공연장_낮_위치",
+      "api": "subway_position",
+      "targets": [
+        "1호선",
+        "2호선",
+        "5호선",
+        "9호선"
+      ],
+      "days": "weekend",
+      "windows": [
+        [
+          "13:00",
+          "18:00"
+        ]
+      ],
+      "interval_min": 10
+    },
+    {
+      "name": "통학버스_차량위치_서울",
+      "_설명": "공공데이터포털 '서울특별시_버스위치정보조회' 키 필요. targets 에는 노선번호가 아닌 busRouteId(예: 100100xxx)를 넣으세요.",
+      "enabled": false,
+      "api": "seoul_bus_position",
+      "targets": [],
+      "days": "weekday",
+      "windows": [
+        [
+          "07:00",
+          "10:00"
+        ],
+        [
+          "17:00",
+          "20:00"
+        ]
+      ],
+      "interval_min": 2
+    },
+    {
+      "name": "통학버스_차량위치_인천",
+      "_설명": "공공데이터포털 '인천광역시_버스위치정보'와 '인천광역시_버스노선조회' 활용신청 필요(같은 DATA_GO_KR_KEY). targets 는 노선 번호로 써도 routeId 로 자동 변환.",
+      "enabled": true,
+      "api": "incheon_bus_position",
+      "targets": [
+        "536"
+      ],
+      "days": "weekday",
+      "windows": [
+        [
+          "06:30",
+          "10:00"
+        ],
+        [
+          "17:00",
+          "20:00"
+        ]
+      ],
+      "interval_min": 2
+    }
+  ]
+}
