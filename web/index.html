@@ -1,0 +1,621 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>체감 길찾기 데이터</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+:root {
+  color-scheme: light;
+  --bg: #ffffff; --panel: #ffffff; --soft: #f5f6f8; --line: #e6e8ec; --grid: #eef0f3;
+  --ink: #111418; --ink-2: #4b5260; --ink-3: #8a919e;
+  --navy: #0052a4; --express: #e5332a;
+  --l1001: #0052a4; --l1002: #00a84d; --l1003: #ef7c1c; --l1004: #00a5de; --l1005: #996cac;
+  --l1006: #cd7c2f; --l1007: #747f00; --l1008: #e6186c; --l1009: #bdb092; --l1063: #77c4a3;
+  --seq-1: #e3edf8; --seq-2: #bcd3ee; --seq-3: #86b1e0; --seq-4: #4f8bcd; --seq-5: #1f65b4; --seq-6: #0052a4;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink);
+  font-family: Pretendard, -apple-system, "Segoe UI", "Malgun Gothic", sans-serif; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px 96px; }
+
+/* ---------- 노선 배지 ---------- */
+.lb { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; color: #fff;
+  font-size: 12px; font-weight: 700; flex: none; line-height: 1; letter-spacing: -0.03em; }
+.lb.wide { width: auto; padding: 0 7px; border-radius: 11px; font-size: 11px; }
+.lb.dark { color: #111; }
+
+/* ---------- 상단 ---------- */
+.topbar { display: flex; align-items: center; gap: 10px; padding: 18px 0; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.topbar .brand { font-weight: 700; font-size: 15px; letter-spacing: -0.01em; margin-right: auto; display: flex; align-items: center; gap: 8px; }
+.topbar .brand .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--navy); box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--navy); }
+.badges { display: flex; gap: 4px; flex-wrap: wrap; }
+.hero { padding: 48px 0 8px; }
+.live { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-2); background: var(--soft);
+  border-radius: 999px; padding: 5px 12px 5px 10px; }
+.live i { width: 8px; height: 8px; border-radius: 50%; background: #00a84d; box-shadow: 0 0 0 3px rgb(0 168 77 / .18); }
+h1 { font-size: clamp(28px, 5vw, 46px); line-height: 1.18; margin: 16px 0 14px; letter-spacing: -0.035em; font-weight: 800; }
+h1 em { font-style: normal; color: var(--navy); }
+.hero p { color: var(--ink-2); margin: 0; max-width: 640px; font-size: 16px; }
+.built { font-size: 12px; color: var(--ink-3); margin-top: 14px; }
+.route-deco { margin: 28px 0 0; display: block; width: 100%; height: 56px; }
+
+.tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.tile { padding: 16px 18px; border-left: 1px solid var(--line); background: var(--panel); min-width: 0; }
+.tile:first-child { border-left: 0; }
+.tile .label { font-size: 13px; color: var(--ink-2); display: flex; align-items: center; gap: 6px; }
+.tile .value { font-size: 26px; font-weight: 750; margin-top: 4px; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tile .value small { font-size: 15px; font-weight: 600; margin-left: 2px; color: var(--ink-2); }
+.tile .sub { font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+.tiles.top { margin-top: 28px; }
+
+/* ---------- 섹션 ---------- */
+section { margin-top: 72px; }
+.sec-head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+.sec-no { display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: #fff;
+  border: 3px solid var(--navy); font-weight: 800; font-size: 14px; color: var(--navy); flex: none; }
+h2 { font-size: 24px; margin: 0; letter-spacing: -0.025em; font-weight: 750; }
+p.desc { color: var(--ink-2); margin: 0 0 20px 46px; max-width: 720px; font-size: 15px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 20px; }
+.card + .card { margin-top: 14px; }
+
+/* ---------- 조작 ---------- */
+.controls { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: end; margin-bottom: 18px; }
+.controls label { display: flex; flex-direction: column; font-size: 12px; color: var(--ink-3); gap: 5px; font-weight: 600; }
+.sel { position: relative; display: flex; align-items: center; }
+.sel .lb { position: absolute; left: 8px; pointer-events: none; }
+select { font: inherit; font-size: 15px; font-weight: 600; color: var(--ink); background: #fff; border: 1px solid var(--line);
+  border-radius: 10px; padding: 8px 32px 8px 12px; min-width: 132px; max-width: 100%; appearance: none; cursor: pointer;
+  background-image: linear-gradient(45deg, transparent 50%, #8a919e 50%), linear-gradient(135deg, #8a919e 50%, transparent 50%);
+  background-position: calc(100% - 16px) 52%, calc(100% - 11px) 52%; background-size: 5px 5px; background-repeat: no-repeat; }
+select:focus-visible, button:focus-visible { outline: 2px solid var(--navy); outline-offset: 2px; }
+.sel.has-badge select { padding-left: 38px; }
+.seg { display: inline-flex; background: var(--soft); border-radius: 10px; padding: 3px; }
+.seg button { font: inherit; font-size: 14px; font-weight: 600; border: 0; background: transparent; color: var(--ink-3); padding: 6px 12px; border-radius: 8px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: #fff; color: var(--ink); box-shadow: 0 1px 2px rgb(0 0 0 / .08), 0 0 0 1px var(--line); }
+.presets { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px 46px; }
+.preset { font: inherit; display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); background: #fff;
+  border-radius: 999px; padding: 5px 14px 5px 6px; cursor: pointer; font-size: 14px; font-weight: 600; color: var(--ink); }
+.preset:hover { border-color: var(--ink-3); }
+.preset[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.preset span.cap { font-weight: 500; color: var(--ink-3); font-size: 12px; }
+
+/* ---------- 노선도 띠 ---------- */
+.strip { margin: 0 0 18px; padding: 18px 8px 6px; background: var(--soft); border-radius: 12px; }
+.strip svg { display: block; width: 100%; overflow: visible; }
+.strip text { font-family: inherit; }
+
+/* ---------- 차트 ---------- */
+.legend { display: flex; gap: 16px; font-size: 13px; color: var(--ink-2); margin: 16px 0 4px; flex-wrap: wrap; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.chart { position: relative; width: 100%; margin-top: 6px; }
+.chart svg { display: block; width: 100%; overflow: visible; }
+.chart text { font-family: inherit; font-size: 11px; fill: var(--ink-3); font-variant-numeric: tabular-nums; }
+.empty { padding: 40px 16px; text-align: center; color: var(--ink-3); font-size: 14px; background: var(--soft); border-radius: 12px; }
+.note { font-size: 12px; color: var(--ink-3); margin-top: 10px; }
+details { margin-top: 14px; font-size: 13px; color: var(--ink-2); border-top: 1px solid var(--line); padding-top: 10px; }
+summary { cursor: pointer; color: var(--ink-3); font-weight: 600; }
+table { border-collapse: collapse; margin-top: 8px; font-variant-numeric: tabular-nums; width: 100%; max-width: 560px; }
+th, td { text-align: right; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+th:first-child, td:first-child { text-align: left; }
+th { color: var(--ink-3); font-weight: 600; font-size: 12px; }
+.tip { position: fixed; pointer-events: none; z-index: 10; background: #111418; color: #fff; border-radius: 10px;
+  padding: 9px 12px; font-size: 12px; line-height: 1.55; box-shadow: 0 6px 24px rgb(0 0 0 / .18); display: none; max-width: 260px; }
+.tip b { font-weight: 700; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.card h3 { font-size: 16px; margin: 0 0 2px; letter-spacing: -0.01em; }
+.card h3 + p { font-size: 13px; color: var(--ink-2); margin: 0 0 14px; }
+.card .tiles { margin-bottom: 4px; }
+
+/* ---------- 준비 목록 (노선도식) ---------- */
+.timeline { list-style: none; margin: 0 0 0 46px; padding: 0; position: relative; }
+.timeline li { position: relative; padding: 0 0 22px 30px; }
+.timeline li::before { content: ""; position: absolute; left: 7px; top: 8px; bottom: -8px; width: 4px; background: var(--line); }
+.timeline li:last-child::before { display: none; }
+.timeline li.on::before { background: var(--navy); }
+.timeline li::after { content: ""; position: absolute; left: 0; top: 3px; width: 18px; height: 18px; border-radius: 50%;
+  background: #fff; border: 4px solid var(--line); box-sizing: border-box; }
+.timeline li.on::after { border-color: var(--navy); }
+.timeline b { font-size: 15px; }
+.timeline .st { font-size: 12px; font-weight: 700; margin-left: 6px; color: var(--ink-3); }
+.timeline li.on .st { color: var(--navy); }
+.timeline .what { display: block; color: var(--ink-2); font-size: 14px; }
+
+footer { margin-top: 72px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 12px; color: var(--ink-3); }
+
+@media (max-width: 760px) {
+  .grid2 { grid-template-columns: 1fr; }
+  .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tile:nth-child(3) { border-left: 0; }
+  .tile:nth-child(n+3) { border-top: 1px solid var(--line); }
+  .tile .value { font-size: 22px; }
+  p.desc, .presets, .timeline { margin-left: 0; }
+  .hero { padding-top: 32px; }
+  section { margin-top: 56px; }
+  .card { padding: 16px; }
+  .topbar .badges { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand"><span class="dot"></span>체감 길찾기 데이터</div>
+    <div class="badges" id="lineBadges"></div>
+  </div>
+
+  <header class="hero">
+    <span class="live"><i></i><span id="liveText">실시간 수집 중</span></span>
+    <h1>지도 앱이 모르는 변수까지<br>읽는 <em>길찾기</em></h1>
+    <p>서울 지하철 1~9호선 전체의 열차 위치와 도착 안내를 쌓아, 같은 구간이 실제로 얼마나 걸리는지, 배차가 얼마나 들쭉날쭉한지, 도착 안내가 얼마나 맞는지 정리합니다.</p>
+    <div class="built" id="built"></div>
+    <svg class="route-deco" id="routeDeco" aria-hidden="true"></svg>
+    <div class="tiles top" id="topTiles"></div>
+  </header>
+
+  <section id="od">
+    <div class="sec-head"><span class="sec-no">1</span><h2>구간 실제 소요 시간</h2></div>
+    <p class="desc">같은 열차가 출발역과 도착역을 지난 시각의 차이입니다. 앱은 시간표 기준 숫자 하나만 보여주지만, 실제로는 출발 시각과 열차 종류에 따라 퍼져 있습니다.</p>
+    <div class="presets" id="odPresets"></div>
+    <div class="card">
+      <div class="controls">
+        <label>노선<div class="sel has-badge"><span class="lb" id="odLineBadge"></span><select id="odLine"></select></div></label>
+        <label>출발역<div class="sel"><select id="odFrom"></select></div></label>
+        <label>도착역<div class="sel"><select id="odTo"></select></div></label>
+        <div class="seg" id="odDays" role="group" aria-label="요일">
+          <button data-v="all" aria-pressed="true">전체</button><button data-v="weekday">평일</button><button data-v="weekend">주말</button>
+        </div>
+      </div>
+      <div class="strip" id="odStrip"></div>
+      <div class="tiles" id="odTiles"></div>
+      <div class="legend" id="odLegend"></div>
+      <div class="chart" id="odChart"></div>
+      <details><summary>표로 보기 · 시간대별</summary><div id="odTable"></div></details>
+    </div>
+  </section>
+
+  <section id="hw">
+    <div class="sec-head"><span class="sec-no">2</span><h2>배차 간격</h2></div>
+    <p class="desc">한 역에 같은 방향 열차가 실제로 몇 분 간격으로 왔는지입니다. 점 하나가 '앞 열차와 다음 열차 사이' 한 번입니다. 수집이 끊긴 구간은 간격이 부풀려 보이므로 뺐습니다.</p>
+    <div class="card">
+      <div class="controls">
+        <label>노선<div class="sel has-badge"><span class="lb" id="hwLineBadge"></span><select id="hwLine"></select></div></label>
+        <label>역<div class="sel"><select id="hwStation"></select></div></label>
+        <label>방향<div class="sel"><select id="hwDir"></select></div></label>
+      </div>
+      <div class="tiles" id="hwTiles"></div>
+      <div class="chart" id="hwChart" style="margin-top:18px"></div>
+    </div>
+  </section>
+
+  <section id="pred">
+    <div class="sec-head"><span class="sec-no">3</span><h2>도착 안내는 얼마나 맞나</h2></div>
+    <p class="desc">전광판·앱의 도착 안내를 그 열차가 실제로 도착한 시각과 맞춰 봤습니다. 서울교통공사 구간은 "N분 후", 코레일 구간(동암 등)은 "N번째 전역"으로만 안내됩니다.</p>
+    <div class="grid2">
+      <div class="card">
+        <h3>"N분 후" 안내의 오차</h3>
+        <p>실제 도착 − 안내된 도착. 오른쪽일수록 안내보다 늦게 왔다는 뜻</p>
+        <div class="presets" id="etaStations" style="margin:0 0 12px"></div>
+        <div class="tiles" id="etaTiles" style="grid-template-columns:repeat(3,minmax(0,1fr))"></div>
+        <div class="chart" id="etaChart" style="margin-top:16px"></div>
+      </div>
+      <div class="card">
+        <h3>"N번째 전역" 안내 후 실제 대기</h3>
+        <p>안내를 본 순간부터 열차가 실제로 도착하기까지 걸린 시간</p>
+        <div class="presets" id="nthStations" style="margin:0 0 4px"></div>
+        <div class="legend" id="nthLegend"></div>
+        <div class="chart" id="nthChart"></div>
+        <div class="note">가로축: 안내에 뜬 "N번째 전역"의 N (몇 정거장 전인지)</div>
+        <details><summary>표로 보기</summary><div id="nthTable"></div></details>
+      </div>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <h3>안내 정보의 나이</h3>
+      <p>우리가 받은 시각 − 그 안내가 마지막으로 갱신된 시각. 오래된 안내일수록 실제와 어긋날 여지가 큽니다.</p>
+      <div class="tiles" id="ageTiles"></div>
+    </div>
+  </section>
+
+  <section id="health">
+    <div class="sec-head"><span class="sec-no">4</span><h2>수집 현황</h2></div>
+    <p class="desc">날짜·시간별로 성공한 API 호출 수입니다. 빈 칸은 수집 계획이 없거나 노트북이 꺼져 있던 시간입니다.</p>
+    <div class="card"><div class="chart" id="healthChart"></div></div>
+  </section>
+
+  <section id="next">
+    <div class="sec-head"><span class="sec-no">5</span><h2>다음 역: 붙일 데이터</h2></div>
+    <p class="desc">체감 시간·피로도를 설명할 나머지 변수들입니다.</p>
+    <ul class="timeline">
+      <li class="on"><b>지하철 열차 위치·도착 안내</b><span class="st">수집 중</span><span class="what">서울 1~9호선·경의중앙선 전체, 대표 환승역·공연장역 / 11월 16일 ~ 22일</span></li>
+      <li><b>서울 버스 차량 위치</b><span class="st">키 대기</span><span class="what">같은 노선 안 차량별 구간 시간 편차(기사 편차의 대리 지표), 지하철 환승 연결</span></li>
+      <li><b>지하철 시간표 = 앱 예상 시간</b><span class="st">예정</span><span class="what">서울 일반 인증키로 받아 ①에 '앱 기준선'으로 겹쳐 표시</span></li>
+      <li><b>날씨</b><span class="st">예정</span><span class="what">기상청 과거 관측자료(ASOS), 수집 끝난 뒤 한 번에 내려받기</span></li>
+      <li><b>공연·경기 일정</b><span class="st">예정</span><span class="what">KOPIS·KBL·KOVO, 공연장역 저녁 데이터와 비교</span></li>
+      <li><b>환승 통로 거리·계단</b><span class="st">예정</span><span class="what">서울교통공사 공개 데이터, 체감 피로도 점수의 재료</span></li>
+    </ul>
+  </section>
+
+  <footer>데이터: 서울 열린데이터광장 실시간 지하철 API · 데이터분석 2026 팀 프로젝트 시범 사이트</footer>
+</div>
+<div class="tip" id="tip"></div>
+
+<script src="data.js"></script>
+<script>
+(() => {
+const D = window.DATA || { trains: [], eta: [], nth: [], age: [], health: [], stations: {}, lines: {}, polls: {}, built: '-' };
+const $ = id => document.getElementById(id);
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const br = s => Math.floor(s / 1000);
+const fmtHM = sec => { const m = Math.round(sec / 60); return String(Math.floor(m / 60) % 24).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'); };
+const q = (arr, p) => { if (!arr.length) return NaN; const a = [...arr].sort((x, y) => x - y); const i = (a.length - 1) * p, lo = Math.floor(i); return a[lo] + (a[Math.ceil(i)] - a[lo]) * (i - lo); };
+const f1 = v => Number.isFinite(v) ? (Math.round(v * 10) / 10).toLocaleString('ko-KR') : '–';
+const isWeekend = d => [0, 6].includes(new Date(d + 'T12:00:00').getDay());
+const dayOk = (d, mode) => mode === 'all' || (mode === 'weekend') === isWeekend(d);
+const stName = (l, s) => (D.stations[l] || {})[s] || '';
+
+// ---------- 노선 ----------
+const LINES = { '1001': '1', '1002': '2', '1003': '3', '1004': '4', '1005': '5', '1006': '6', '1007': '7', '1008': '8', '1009': '9', '1063': '경의중앙' };
+const lc = l => css('--l' + l) || css('--navy');
+const badge = l => `<span class="lb${LINES[l]?.length > 1 ? ' wide' : ''}${['1009', '1063'].includes(l) ? ' dark' : ''}" style="background:${lc(l)}" title="${D.lines[l] || ''}">${LINES[l] || '?'}</span>`;
+$('lineBadges').innerHTML = Object.keys(LINES).map(badge).join('');
+
+// ---------- 툴팁 ----------
+const tip = $('tip');
+function showTip(html, ev) {
+  tip.innerHTML = html; tip.style.display = 'block';
+  const w = tip.offsetWidth, h = tip.offsetHeight;
+  let x = ev.clientX + 14, y = ev.clientY + 14;
+  if (x + w > innerWidth - 8) x = ev.clientX - w - 14;
+  if (y + h > innerHeight - 8) y = ev.clientY - h - 14;
+  tip.style.left = x + 'px'; tip.style.top = y + 'px';
+}
+const hideTip = () => tip.style.display = 'none';
+
+function tiles(el, items) {
+  $(el).innerHTML = items.map(t => `<div class="tile"><div class="label">${t[0]}</div><div class="value">${t[1]}</div>${t[2] ? `<div class="sub">${t[2]}</div>` : ''}</div>`).join('');
+}
+const unit = (v, u) => v === '–' ? '–' : `${v}<small>${u}</small>`;
+const empty = (el, msg) => $(el).innerHTML = `<div class="empty">${msg || '아직 데이터가 부족해요. 수집이 쌓이면 자동으로 채워집니다.'}</div>`;
+
+function niceTicks(lo, hi, n) {
+  const span = hi - lo || 1, step0 = span / n, mag = 10 ** Math.floor(Math.log10(step0));
+  const step = [1, 2, 2.5, 5, 10].map(m => m * mag).find(s => s >= step0) || mag * 10;
+  const out = []; for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) out.push(+v.toFixed(6));
+  return out;
+}
+
+// ---------- 점 그래프. 계열: {name, color, shape: 'dot'|'diamond'} ----------
+const mark = (x, y, color, shape) => shape === 'diamond'
+  ? `<rect x="${x - 4}" y="${y - 4}" width="8" height="8" transform="rotate(45 ${x} ${y})" fill="${color}" stroke="#fff" stroke-width="2"/>`
+  : `<circle cx="${x}" cy="${y}" r="4.5" fill="${color}" stroke="#fff" stroke-width="2"/>`;
+function scatter(el, pts, opt) {
+  const box = $(el); if (!pts.length) return empty(el, opt.emptyMsg);
+  const W = box.clientWidth || 600, H = opt.h || 300, m = { l: 40, r: 14, t: 18, b: 28 };
+  let [x0, x1] = opt.xDomain || [Math.min(...pts.map(p => p.x)), Math.max(...pts.map(p => p.x))];
+  if (x1 - x0 < 1e-6) { x0 -= 1; x1 += 1; }
+  const pad = opt.xDomain ? 0 : (x1 - x0) * 0.03; x0 -= pad; x1 += pad;
+  const ys = pts.map(p => p.y); let y0 = Math.min(0, ...ys), y1 = Math.max(...ys) * 1.1 || 1;
+  const yt = niceTicks(y0, y1, 5); y1 = Math.max(y1, yt[yt.length - 1]);
+  const X = v => m.l + (v - x0) / (x1 - x0) * (W - m.l - m.r), Y = v => H - m.b - (v - y0) / (y1 - y0) * (H - m.t - m.b);
+  const xt = opt.xTicks ? opt.xTicks(x0, x1) : niceTicks(x0, x1, 6);
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${opt.aria || ''}">`;
+  yt.forEach(v => s += `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="${v === 0 ? css('--line') : css('--grid')}" stroke-width="1"/><text x="${m.l - 8}" y="${Y(v) + 4}" text-anchor="end">${v.toLocaleString('ko-KR')}</text>`);
+  xt.forEach(v => s += `<text x="${X(v)}" y="${H - 8}" text-anchor="middle">${opt.xFmt ? opt.xFmt(v) : v}</text>`);
+  s += `<text x="${m.l - 8}" y="${m.t - 8}" text-anchor="start" style="fill:${css('--ink-2')}">${opt.yLabel || ''}</text>`;
+  (opt.refs || []).forEach(r => s += `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(r.y)}" y2="${Y(r.y)}" stroke="${css('--ink')}" stroke-width="1" stroke-opacity=".5"/><text x="${W - m.r}" y="${Y(r.y) - 6}" text-anchor="end" style="fill:${css('--ink')};font-weight:600">${r.label}</text>`);
+  pts.forEach(p => { const sr = opt.series[p.s]; s += mark(X(p.x), Y(p.y), sr.color, sr.shape); });
+  box.innerHTML = s + '</svg>';
+  const svg = box.querySelector('svg');
+  svg.addEventListener('mousemove', ev => {
+    const r = svg.getBoundingClientRect(), k = W / r.width, mx = (ev.clientX - r.left) * k, my = (ev.clientY - r.top) * k;
+    let best = null, bd = 16 * k;
+    pts.forEach(p => { const d = Math.hypot(X(p.x) - mx, Y(p.y) - my); if (d < bd) { bd = d; best = p; } });
+    best ? showTip(best.tip, ev) : hideTip();
+  });
+  svg.addEventListener('mouseleave', hideTip);
+}
+function legend(el, series) {
+  $(el).innerHTML = series.length > 1 ? series.map(s => `<span><svg width="12" height="12">${mark(6, 6, s.color, s.shape).replace('stroke="#fff"', 'stroke="none"')}</svg>${s.name}</span>`).join('') : '';
+}
+const hourTicks = (x0, x1) => {
+  const span = x1 - x0, st = span > 8 ? 2 : span > 2.5 ? 1 : span > 1 ? 0.5 : 0.25, out = [];
+  for (let h = Math.ceil(x0 / st) * st; h <= x1 + 1e-9; h += st) out.push(+h.toFixed(4));
+  return out;
+};
+const hourFmt = h => Number.isInteger(h) ? String(h % 24).padStart(2, '0') + '시' : fmtHM(h * 3600);
+const seriesFor = l => [{ name: '일반', color: lc(l), shape: 'dot' }, { name: '급행', color: css('--express'), shape: 'diamond' }];
+
+// ---------- 궤적 보간 ----------
+// 2호선 본선은 순환선: 충정로(243) 다음이 시청(201). 번호가 끊기는 곳을 이어 붙여서 비교
+const LOOP = { 1002000: 43 };
+const loopN = sid => LOOP[br(sid)];
+function step(a, b) { const n = loopN(a); let d = b - a; if (n && br(a) === br(b)) d = ((d + Math.floor(n / 2)) % n + n) % n - Math.floor(n / 2); return d; }
+function unwrap(pts) { const out = []; pts.forEach((p, i) => out.push([i ? out[i - 1][0] + step(pts[i - 1][0], p[0]) : p[0], p[1]])); return out; }
+function timeAt(tr, sid) {
+  let pts = tr.p.filter(p => br(p[0]) === br(sid));
+  for (const p of pts) if (p[0] === sid) return p[1];
+  const n = loopN(sid); pts = unwrap(pts);
+  for (const v of n ? [-2, -1, 0, 1, 2].map(k => sid + k * n) : [sid])
+    for (let i = 0; i < pts.length - 1; i++) {
+      const [s1, t1] = pts[i], [s2, t2] = pts[i + 1];
+      if ((s1 - v) * (s2 - v) < 0 && t2 - t1 <= 720) return t1 + (t2 - t1) * (v - s1) / (s2 - s1);
+    }
+  return null;
+}
+// 순환선에서 o→d 짧은 쪽으로 지나는 역들 (아니면 번호 순서)
+function arcIds(l, o, d) {
+  const all = Object.keys(D.stations[l] || {}).map(Number).filter(s => br(s) === br(o));
+  if (!loopN(o)) return all.filter(s => s >= Math.min(o, d) && s <= Math.max(o, d)).sort((a, b) => o < d ? a - b : b - a);
+  const dir = Math.sign(step(o, d)), set = new Set(all), ids = [o];
+  for (let s = o, k = 0; s !== d && k < 60; k++) { s = br(o) * 1000 + ((s % 1000 - 201 + dir + 43) % 43) + 201; if (set.has(s)) ids.push(s); }
+  return ids;
+}
+
+// ---------- 상단 ----------
+const days = [...new Set(D.trains.map(t => t.d).concat(D.health.map(h => h.d)))].sort();
+$('built').textContent = `마지막 정리 ${D.built}`;
+$('liveText').textContent = days.length ? `실시간 수집 중 · ${days.length}일째` : '수집 준비 중';
+tiles('topTiles', [
+  ['수집 기간', unit(days.length || '–', '일'), days.length ? `${days[0].slice(5).replace('-', '/')} ~ ${days[days.length - 1].slice(5).replace('-', '/')}` : ''],
+  ['관측한 열차 운행', unit(D.trains.length.toLocaleString('ko-KR'), '회'), '역 2곳 이상 지난 운행'],
+  ['도착 안내 매칭', unit((D.eta.length + D.nth.length).toLocaleString('ko-KR'), '건'), '안내 ↔ 실제 도착'],
+  ['성공한 호출', unit(D.health.reduce((a, h) => a + h.ok, 0).toLocaleString('ko-KR'), '회'), `실패 ${D.health.reduce((a, h) => a + h.fail, 0)}회`],
+]);
+function drawDeco() {
+  const svg = $('routeDeco'), W = svg.clientWidth || 1000, keys = Object.keys(LINES), seg = W / keys.length;
+  let s = '';
+  keys.forEach((l, i) => s += `<line x1="${i * seg}" x2="${(i + 1) * seg}" y1="28" y2="28" stroke="${lc(l)}" stroke-width="6"/>`);
+  keys.forEach((l, i) => { if (i) s += `<circle cx="${i * seg}" cy="28" r="7" fill="#fff" stroke="#111418" stroke-width="2.5"/>`; });
+  s += `<circle cx="4" cy="28" r="7" fill="#fff" stroke="${lc(keys[0])}" stroke-width="3"/><circle cx="${W - 4}" cy="28" r="7" fill="#fff" stroke="${lc(keys[keys.length - 1])}" stroke-width="3"/>`;
+  svg.setAttribute('viewBox', `0 0 ${W} 56`); svg.innerHTML = s;
+}
+
+// ---------- 노선/역 선택 ----------
+const lineIds = Object.keys(D.stations).filter(l => D.trains.some(t => t.l === l)).sort();
+function fillLines(sel, val) {
+  $(sel).innerHTML = lineIds.map(l => `<option value="${l}">${D.lines[l] || l}</option>`).join('');
+  if (val && lineIds.includes(val)) $(sel).value = val;
+  setBadge(sel);
+}
+function setBadge(sel) { const l = $(sel).value, b = $(sel + 'Badge'); if (!b) return; b.outerHTML = badge(l).replace('class="lb', `id="${sel}Badge" class="lb`); }
+function fillStations(sel, line, val, filter) {
+  const st = Object.entries(D.stations[line] || {}).filter(([s]) => !filter || filter(+s)).sort((a, b) => a[0] - b[0]);
+  $(sel).innerHTML = st.map(([s, n]) => `<option value="${s}">${n}</option>`).join('');
+  if (val && st.some(([s]) => s == val)) $(sel).value = val;
+}
+const findSt = (line, name) => Object.entries(D.stations[line] || {}).find(([, n]) => n === name)?.[0];
+
+// ---------- ① 구간 소요 시간 ----------
+let odDays = 'all';
+const PRESETS = [
+  ['1001', '동암', '신도림', '인천→서울 통학'], ['1002', '신도림', '신촌', '대학가'],
+  ['1004', '사당', '동대문역사문화공원', '환승 허브'], ['1003', '고속터미널', '종로3가', '환승 허브'],
+  ['1009', '고속터미널', '종합운동장', '공연장 · 잠실'], ['1005', '왕십리', '올림픽공원', 'KSPO DOME'],
+  ['1002', '신도림', '종합운동장', '공연장 · 잠실'], ['1001', '신도림', '구일', '고척돔'],
+  ['1002', '신도림', '강남', '직장 · 강남'], ['1009', '김포공항', '여의도', '직장 · 여의도'],
+  ['1007', '고속터미널', '가산디지털단지', '직장 · G밸리'], ['1001', '신도림', '시청', '직장 · 도심'],
+  ['1002', '홍대입구', '성수', '번화가'], ['1002', '강남', '홍대입구', '번화가'], ['1002', '성수', '강남', '번화가']];
+const presetOk = p => findSt(p[0], p[1]) && findSt(p[0], p[2]) && br(+findSt(p[0], p[1])) === br(+findSt(p[0], p[2]));
+function drawPresets() {
+  const l = $('odLine').value, o = stName(l, $('odFrom').value), d = stName(l, $('odTo').value);
+  $('odPresets').innerHTML = PRESETS.map((p, i) => presetOk(p)
+    ? `<button class="preset" data-i="${i}" aria-pressed="${p[0] === l && p[1] === o && p[2] === d}">${badge(p[0])}${p[1]} → ${p[2]} <span class="cap">${p[3]}</span></button>` : '').join('');
+}
+$('odPresets').addEventListener('click', e => {
+  const b = e.target.closest('.preset'); if (!b) return; const p = PRESETS[b.dataset.i];
+  $('odLine').value = p[0]; setBadge('odLine'); odStations(); $('odFrom').value = findSt(p[0], p[1]); odToFill(); $('odTo').value = findSt(p[0], p[2]); drawOD();
+});
+function odStations() { fillStations('odFrom', $('odLine').value); odToFill(); }
+function odToFill() { const f = +$('odFrom').value; fillStations('odTo', $('odLine').value, $('odTo').value, s => br(s) === br(f) && s !== f); }
+
+function drawStrip(l, o, d, med) {
+  const box = $('odStrip'); if (!o || !d) { box.innerHTML = ''; return; }
+  const ids = arcIds(l, o, d);
+  const W = box.clientWidth - 16 || 800, H = 74, pad = 40, color = lc(l), n = ids.length;
+  const X = i => pad + (n > 1 ? i / (n - 1) : 0.5) * (W - pad * 2);
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${stName(l, o)}에서 ${stName(l, d)}까지 ${n - 1}개 역 구간">`;
+  s += `<line x1="${X(0)}" x2="${X(n - 1)}" y1="22" y2="22" stroke="${color}" stroke-width="8" stroke-linecap="round"/>`;
+  ids.forEach((sid, i) => {
+    const end = i === 0 || i === n - 1;
+    s += `<circle cx="${X(i)}" cy="22" r="${end ? 10 : 5}" fill="#fff" stroke="${end ? '#111418' : color}" stroke-width="${end ? 3.5 : 2.5}"><title>${stName(l, sid)}</title></circle>`;
+  });
+  const lab = (i, anchor) => `<text x="${X(i)}" y="54" text-anchor="${anchor}" style="font-size:15px;font-weight:700;fill:#111418">${stName(l, ids[i])}</text>`;
+  s += lab(0, 'start').replace(`x="${X(0)}"`, `x="${X(0) - 10}"`) + lab(n - 1, 'end').replace(`x="${X(n - 1)}"`, `x="${X(n - 1) + 10}"`);
+  s += `<text x="${(X(0) + X(n - 1)) / 2}" y="54" text-anchor="middle" style="font-size:12px;fill:${css('--ink-2')}">${n - 1}개 역${Number.isFinite(med) ? ` · 실제 중앙값 ${f1(med)}분` : ''}</text>`;
+  box.innerHTML = s + '</svg>';
+}
+
+function drawOD() {
+  const l = $('odLine').value, o = +$('odFrom').value, d = +$('odTo').value;
+  const pts = [];
+  if (o && d) D.trains.forEach(tr => {
+    if (tr.l !== l || !dayOk(tr.d, odDays)) return;
+    const a = timeAt(tr, o), b = timeAt(tr, d);
+    if (a == null || b == null || b <= a || b - a > 3 * 3600) return;
+    if (loopN(o) && trainDir(tr, o) !== Math.sign(step(o, d))) return;  // 순환선: 반대로 크게 도는 열차 제외
+    const mins = (b - a) / 60;
+    pts.push({ x: a / 3600, y: mins, s: tr.x, d: tr.d,
+      tip: `<b>${tr.d.slice(5).replace('-', '/')} ${fmtHM(a)} → ${fmtHM(b)}</b><br>${f1(mins)}분 · ${tr.x ? '급행' : '일반'} ${tr.n}${tr.e ? ` · ${tr.e}행` : ''}` });
+  });
+  const ys = pts.map(p => p.y), med = q(ys, .5);
+  const medOf = s => q(pts.filter(p => p.s === s).map(p => p.y), .5);
+  drawStrip(l, o, d, med); drawPresets();
+  tiles('odTiles', [
+    ['관측 열차', unit(pts.length.toLocaleString('ko-KR'), '회'), `${new Set(pts.map(p => p.d)).size}일치`],
+    ['중앙값', unit(pts.length ? f1(med) : '–', '분'), '절반은 이보다 빠름'],
+    ['보통 범위', pts.length >= 5 ? unit(`${f1(q(ys, .1))}–${f1(q(ys, .9))}`, '분') : '–', '빠른·느린 10% 제외'],
+    ['일반 / 급행', unit(`${f1(medOf(0))} / ${f1(medOf(1))}`, '분'), '각 중앙값'],
+  ]);
+  const SER = seriesFor(l), used = [0, 1].filter(s => pts.some(p => p.s === s));
+  legend('odLegend', used.map(s => SER[s]));
+  scatter('odChart', pts, { series: SER, xFmt: hourFmt, xTicks: hourTicks, yLabel: '소요 시간 (분)',
+    refs: pts.length >= 3 ? [{ y: med, label: `중앙값 ${f1(med)}분` }] : [], aria: '출발 시각별 구간 소요 시간',
+    emptyMsg: '이 구간을 지난 열차가 아직 없어요. 수집이 쌓이면 자동으로 채워집니다.' });
+  const byH = {}; pts.forEach(p => (byH[Math.floor(p.x)] ||= []).push(p.y));
+  $('odTable').innerHTML = `<table><tr><th>출발 시간대</th><th>열차</th><th>중앙값(분)</th><th>빠른 10%</th><th>느린 10%</th></tr>` +
+    Object.keys(byH).sort((a, b) => a - b).map(h => `<tr><td>${hourFmt(+h)}</td><td>${byH[h].length}</td><td>${f1(q(byH[h], .5))}</td><td>${f1(q(byH[h], .1))}</td><td>${f1(q(byH[h], .9))}</td></tr>`).join('') + '</table>';
+}
+$('odLine').addEventListener('change', () => { setBadge('odLine'); odStations(); drawOD(); });
+$('odFrom').addEventListener('change', () => { odToFill(); drawOD(); });
+$('odTo').addEventListener('change', drawOD);
+$('odDays').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return; odDays = b.dataset.v;
+  $('odDays').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b)); drawOD();
+});
+
+// ---------- ② 배차 간격 ----------
+function pollsCover(line, day, t1, t2) {
+  const P = (D.polls[line] || []).filter(p => p[0] === day).map(p => p[1]).filter(t => t >= t1 - 720 && t <= t2 + 720);
+  if (!P.length || P[0] > t1 || P[P.length - 1] < t2) return false;
+  for (let i = 1; i < P.length; i++) if (P[i] - P[i - 1] > 720) return false;
+  return true;
+}
+function trainDir(tr, sid) {
+  const pts = unwrap(tr.p.filter(p => br(p[0]) === br(sid))); if (pts.length < 2) return 0;
+  return Math.sign(pts[pts.length - 1][0] - pts[0][0]);
+}
+function hwStations() { setBadge('hwLine'); fillStations('hwStation', $('hwLine').value, $('hwStation').value); hwDirs(); }
+function hwDirs() {
+  const l = $('hwLine').value, sid = +$('hwStation').value, all = Object.keys(D.stations[l] || {}).map(Number).filter(s => br(s) === br(sid));
+  const next = dir => { if (loopN(sid)) { const s = arcIds(l, sid, br(sid) * 1000 + ((sid % 1000 - 201 + dir * 2 + 43) % 43) + 201)[1]; if (s) return stName(l, s) + ' 방면'; }
+    const c = all.filter(s => dir > 0 ? s > sid : s < sid).sort((a, b) => dir * (a - b)); return c.length ? stName(l, c[0]) + ' 방면' : (dir > 0 ? '번호 증가 방향' : '번호 감소 방향'); };
+  const prev = $('hwDir').value;
+  $('hwDir').innerHTML = `<option value="-1">${next(-1)}</option><option value="1">${next(1)}</option>`;
+  if (prev) $('hwDir').value = prev;
+  drawHW();
+}
+function drawHW() {
+  const l = $('hwLine').value, sid = +$('hwStation').value, dir = +$('hwDir').value;
+  const byDay = {};
+  D.trains.forEach(tr => {
+    if (tr.l !== l || trainDir(tr, sid) !== dir) return;
+    const t = timeAt(tr, sid); if (t != null) (byDay[tr.d] ||= []).push({ t, tr });
+  });
+  const pts = [];
+  Object.entries(byDay).forEach(([day, arr]) => {
+    arr.sort((a, b) => a.t - b.t);
+    for (let i = 1; i < arr.length; i++) {
+      const g = (arr[i].t - arr[i - 1].t) / 60;
+      if (g < 0.5 || g > 60 || !pollsCover(l, day, arr[i - 1].t, arr[i].t)) continue;
+      pts.push({ x: arr[i].t / 3600, y: g, s: 0, tip: `<b>${day.slice(5).replace('-', '/')} ${fmtHM(arr[i - 1].t)} → ${fmtHM(arr[i].t)}</b><br>간격 ${f1(g)}분` });
+    }
+  });
+  const ys = pts.map(p => p.y);
+  tiles('hwTiles', [
+    ['관측한 간격', unit(pts.length.toLocaleString('ko-KR'), '번'), ''],
+    ['중앙 간격', unit(pts.length ? f1(q(ys, .5)) : '–', '분'), ''],
+    ['가장 길었던 간격', unit(pts.length ? f1(Math.max(...ys)) : '–', '분'), ''],
+    ['10분 넘게 기다림', unit(pts.length ? Math.round(ys.filter(y => y > 10).length / ys.length * 100) : '–', '%'), '전체 간격 중'],
+  ]);
+  scatter('hwChart', pts, { series: [{ name: '간격', color: lc(l), shape: 'dot' }], xFmt: hourFmt, xTicks: hourTicks, yLabel: '앞 열차와의 간격 (분)', h: 260, aria: '시간대별 배차 간격' });
+}
+$('hwLine').addEventListener('change', hwStations);
+$('hwStation').addEventListener('change', hwDirs);
+$('hwDir').addEventListener('change', drawHW);
+
+// ---------- ③ 도착 안내 ----------
+function stationChips(el, rows, onPick) {
+  const names = [...new Set(rows.map(r => r.s))].filter(Boolean);
+  if (!names.length) { $(el).innerHTML = ''; onPick(''); return; }
+  const lineOf = n => rows.find(r => r.s === n)?.l;
+  let cur = names[0];
+  const render = () => { $(el).innerHTML = names.map(n => `<button class="preset" aria-pressed="${n === cur}" data-n="${n}">${lineOf(n) ? badge(lineOf(n)) : ''}${n}</button>`).join(''); onPick(cur); };
+  $(el).addEventListener('click', e => { const b = e.target.closest('.preset'); if (b) { cur = b.dataset.n; render(); } });
+  render();
+}
+function drawEta(st) {
+  const rows = D.eta.filter(r => r.s === st), errs = rows.map(r => r.err);
+  tiles('etaTiles', [
+    ['매칭된 안내', unit(rows.length.toLocaleString('ko-KR'), '건'), ''],
+    ['오차 중앙값', rows.length ? unit((q(errs, .5) > 0 ? '+' : '') + f1(q(errs, .5)), '분') : '–', '+ = 늦게 옴'],
+    ['±1분 안에 맞음', unit(rows.length ? Math.round(errs.filter(e => Math.abs(e) <= 1).length / errs.length * 100) : '–', '%'), ''],
+  ]);
+  const box = $('etaChart'); if (!rows.length) return empty('etaChart', '서울교통공사 구간(신도림 2호선 등) 안내가 쌓이면 표시돼요.');
+  const color = lc(rows[0].l);
+  const lo = -5, hi = 5, bw = 0.5, bins = []; for (let v = lo; v < hi - 1e-9; v += bw) bins.push({ a: v, n: 0 });
+  errs.forEach(e => { const c = Math.min(hi - bw / 2, Math.max(lo, e)); bins[Math.floor((c - lo) / bw)].n++; });
+  const W = box.clientWidth || 400, H = 220, m = { l: 30, r: 10, t: 14, b: 28 }, maxN = Math.max(...bins.map(b => b.n));
+  const yt = niceTicks(0, maxN, 4), top = Math.max(maxN, yt[yt.length - 1]);
+  const X = v => m.l + (v - lo) / (hi - lo) * (W - m.l - m.r), Y = v => H - m.b - v / top * (H - m.t - m.b);
+  const bwPx = Math.min(24, X(lo + bw) - X(lo) - 2);
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="도착 안내 오차 분포">`;
+  yt.forEach(v => s += `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="${v ? css('--grid') : css('--line')}"/><text x="${m.l - 6}" y="${Y(v) + 4}" text-anchor="end">${v}</text>`);
+  [-4, -2, 0, 2, 4].forEach(v => s += `<text x="${X(v)}" y="${H - 8}" text-anchor="middle">${v > 0 ? '+' + v : v}분</text>`);
+  s += `<line x1="${X(0)}" x2="${X(0)}" y1="${m.t}" y2="${H - m.b}" stroke="${css('--ink')}" stroke-opacity=".5"/><text x="${X(0) + 5}" y="${m.t + 4}" style="fill:${css('--ink-2')}">정확</text>`;
+  bins.forEach((b, i) => {
+    if (!b.n) return; const x = X(b.a + bw / 2) - bwPx / 2, y = Y(b.n), h = H - m.b - y, r = Math.min(4, h);
+    s += `<path data-i="${i}" d="M${x},${H - m.b} V${y + r} q0,-${r} ${r},-${r} H${x + bwPx - r} q${r},0 ${r},${r} V${H - m.b} Z" fill="${color}"/>`;
+  });
+  box.innerHTML = s + '</svg><div class="note">±5분 밖의 오차는 양 끝 칸에 모았습니다.</div>';
+  box.querySelector('svg').addEventListener('mousemove', ev => {
+    const p = ev.target.closest('path'); if (!p) return hideTip(); const b = bins[p.dataset.i];
+    showTip(`<b>${b.a > 0 ? '+' : ''}${b.a} ~ ${b.a + bw > 0 ? '+' : ''}${b.a + bw}분</b><br>${b.n}건`, ev);
+  });
+  box.querySelector('svg').addEventListener('mouseleave', hideTip);
+}
+function drawNth(st) {
+  const rows = D.nth.filter(r => r.s === st), SER = seriesFor(rows[0]?.l || '1001');
+  const used = [0, 1].filter(s => rows.some(r => r.x === s)); legend('nthLegend', used.map(s => SER[s]));
+  const pts = rows.map((r, i) => ({ x: r.k + (r.x ? 0.14 : -0.14) + ((i * 37) % 9 - 4) * 0.02, y: r.wait, s: r.x,
+    tip: `<b>"${r.k}번째 전역" 안내</b><br>${r.d.slice(5).replace('-', '/')} ${fmtHM(r.h)} · 실제 ${f1(r.wait)}분 뒤 도착<br>${r.x ? '급행' : '일반'} ${r.n}` }));
+  const ks = rows.map(r => r.k);
+  scatter('nthChart', pts, { series: SER, xDomain: [Math.min(...ks, 1) - 0.6, Math.max(...ks, 2) + 0.6], xTicks: (a, b) => { const o = []; for (let k = Math.ceil(a); k <= b; k++) o.push(k); return o; },
+    xFmt: k => String(k), yLabel: '실제 대기 (분)', h: 260, aria: '안내 정거장 수별 실제 대기 시간', emptyMsg: '코레일 구간(동암 등) 안내가 쌓이면 표시돼요.' });
+  const byK = {}; rows.forEach(r => (byK[r.k] ||= []).push(r.wait));
+  $('nthTable').innerHTML = `<table><tr><th>안내</th><th>건수</th><th>중앙값(분)</th><th>최소</th><th>최대</th></tr>` +
+    Object.keys(byK).sort((a, b) => a - b).map(k => `<tr><td>${k}번째 전역</td><td>${byK[k].length}</td><td>${f1(q(byK[k], .5))}</td><td>${f1(Math.min(...byK[k]))}</td><td>${f1(Math.max(...byK[k]))}</td></tr>`).join('') + '</table>';
+}
+function drawAge() {
+  const byS = {}; D.age.forEach(r => (byS[r.s] ||= []).push(r.a));
+  const items = Object.entries(byS).sort((a, b) => b[1].length - a[1].length).slice(0, 4)
+    .map(([s, a]) => [s, unit(f1(q(a, .5)), '분'), `5분 넘은 안내 ${Math.round(a.filter(x => x > 5).length / a.length * 100)}%`]);
+  items.length ? tiles('ageTiles', items) : $('ageTiles').outerHTML = '<div class="empty">아직 데이터가 없어요.</div>';
+}
+
+// ---------- ④ 수집 현황 ----------
+function drawHealth() {
+  const box = $('healthChart'); if (!D.health.length) return empty('healthChart');
+  const ds = [...new Set(D.health.map(h => h.d))].sort(), W = box.clientWidth || 600, lab = 58, cw = (W - lab) / 24, ch = Math.max(18, Math.min(30, cw)), H = ds.length * (ch + 3) + 26;
+  const max = Math.max(...D.health.map(h => h.ok)), steps = ['--seq-1', '--seq-2', '--seq-3', '--seq-4', '--seq-5', '--seq-6'];
+  const cell = {}; D.health.forEach(h => cell[h.d + '|' + h.h] = h);
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="날짜·시간별 수집 현황">`;
+  for (let h = 0; h < 24; h += 3) s += `<text x="${lab + h * cw + cw / 2}" y="${H - 6}" text-anchor="middle">${h}시</text>`;
+  ds.forEach((d, i) => {
+    const y = i * (ch + 3);
+    s += `<text x="0" y="${y + ch / 2 + 4}" style="fill:${css('--ink-2')};font-size:12px">${d.slice(5).replace('-', '/')} ${'일월화수목금토'[new Date(d + 'T12:00:00').getDay()]}</text>`;
+    for (let h = 0; h < 24; h++) {
+      const c = cell[d + '|' + h], x = lab + h * cw;
+      const fill = c && c.ok ? css(steps[Math.min(5, Math.floor(c.ok / (max + 1) * 6))]) : css('--soft');
+      s += `<rect data-k="${d}|${h}" x="${x + 1.5}" y="${y}" width="${cw - 3}" height="${ch}" rx="4" fill="${fill}"/>`;
+      if (c && c.fail) s += `<circle cx="${x + cw - 7}" cy="${y + 7}" r="3" fill="${css('--express')}" pointer-events="none"/>`;
+    }
+  });
+  box.innerHTML = s + '</svg><div class="note">진할수록 호출이 많았던 시간 · <span style="color:var(--express)">●</span> 실패한 호출이 있던 시간</div>';
+  box.querySelector('svg').addEventListener('mousemove', ev => {
+    const r = ev.target.closest('rect'); if (!r) return hideTip(); const [d, h] = r.dataset.k.split('|'), c = cell[r.dataset.k] || { ok: 0, fail: 0, skip: 0 };
+    showTip(`<b>${d.slice(5).replace('-', '/')} ${h}시</b><br>성공 ${c.ok} · 실패 ${c.fail} · 건너뜀 ${c.skip}`, ev);
+  });
+  box.querySelector('svg').addEventListener('mouseleave', hideTip);
+}
+
+// ---------- 시작 ----------
+let etaSt, nthSt;
+if (lineIds.length) {
+  fillLines('odLine', '1001'); odStations();
+  const p = PRESETS.find(p => p[0] === $('odLine').value && presetOk(p));
+  if (p) { $('odFrom').value = findSt(p[0], p[1]); odToFill(); $('odTo').value = findSt(p[0], p[2]); }
+  fillLines('hwLine', '1001'); fillStations('hwStation', $('hwLine').value, findSt($('hwLine').value, '동암') || findSt($('hwLine').value, '신도림')); hwDirs();
+  drawOD();
+} else { ['odChart', 'hwChart'].forEach(e => empty(e)); }
+stationChips('etaStations', D.eta, s => { etaSt = s; drawEta(s); });
+stationChips('nthStations', D.nth, s => { nthSt = s; drawNth(s); });
+drawAge(); drawHealth(); drawDeco();
+
+let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => {
+  drawDeco(); drawHealth(); drawEta(etaSt); drawNth(nthSt); if (lineIds.length) { drawOD(); drawHW(); }
+}, 150); });
+})();
+</script>
+</body>
+</html>

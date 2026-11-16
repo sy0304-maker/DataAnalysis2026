@@ -141,12 +141,11 @@ def fetch(api, target, env):
         return d.get(field) or [], f"{err.get('code')} {err.get('message')}"
 
     if api == "seoul_bus_position":
-        url = ("http://ws.bus.go.kr/api/rest/buspos/getBusPosByRtid"
-               f"?serviceKey={q(key, safe='')}&busRouteId={q(target)}&resultType=json")
-        d = json.loads(http_get(url))
-        items = (d.get("msgBody") or {}).get("itemList") or []
-        h = d.get("msgHeader") or {}
-        return items, f"{h.get('headerCd')} {h.get('headerMsg')}"
+        route_id = seoul_route_id(target, key)
+        items, status = _seoul_bus_get(
+            "http://ws.bus.go.kr/api/rest/buspos/getBusPosByRtid"
+            f"?serviceKey={q(key, safe='')}&busRouteId={q(route_id)}&resultType=json")
+        return [{"_route_id": route_id, **it} for it in items], status
 
     if api == "incheon_bus_position":
         rows, status = [], []
@@ -173,6 +172,34 @@ def _incheon_get(url):
         items = [items]
     h = (d.get("response") or {}).get("header") or {}
     return items, f"{h.get('resultCode')} {h.get('resultMsg')}"
+
+
+def _seoul_bus_get(url):
+    d = json.loads(http_get(url))
+    items = (d.get("msgBody") or {}).get("itemList") or []
+    h = d.get("msgHeader") or {}
+    return items, f"{h.get('headerCd')} {h.get('headerMsg')}"
+
+
+def seoul_route_id(target, key):
+    """'7016' 같은 서울 버스 노선 번호를 busRouteId 로 바꿈. data/_routes.json 에 캐시."""
+    if target.isdigit() and len(target) >= 9:  # 이미 busRouteId
+        return target
+    cache_f = DATA / "_routes.json"
+    cache = json.loads(cache_f.read_text(encoding="utf-8")) if cache_f.exists() else {}
+    ck = "seoul:" + target
+    if ck not in cache:
+        items, st = _seoul_bus_get(
+            "http://ws.bus.go.kr/api/rest/busRouteInfo/getBusRouteList"
+            f"?serviceKey={urllib.parse.quote(key, safe='')}&strSrch={urllib.parse.quote(target)}&resultType=json")
+        found = [it for it in items if str(it.get("busRouteNm", "")).strip() == target]
+        if not found:
+            raise RuntimeError(f"서울 버스 {target} 의 busRouteId 를 찾지 못함 ({st})")
+        cache[ck] = str(found[0]["busRouteId"])
+        cache_f.parent.mkdir(parents=True, exist_ok=True)
+        cache_f.write_text(json.dumps(cache, ensure_ascii=False, indent=1), encoding="utf-8")
+        log(f"서울 버스 {target} -> busRouteId {cache[ck]}")
+    return cache[ck]
 
 
 def incheon_route_ids(target, key):
@@ -267,6 +294,12 @@ def main():
     start, end = dt.date.fromisoformat(cfg["start_date"]), dt.date.fromisoformat(cfg["end_date"])
     if start <= now.date() <= end:
         run(due_calls(cfg, now), cfg, env, now)
+        if now.minute == 5:  # 매시 5분에 시범 사이트 데이터 갱신
+            try:
+                import build_site
+                build_site.main()
+            except Exception as e:  # 사이트 갱신 실패가 수집을 막지 않게
+                log(f"FAIL build_site: {e!r}")
 
 
 if __name__ == "__main__":
