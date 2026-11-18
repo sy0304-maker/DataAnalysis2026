@@ -179,7 +179,80 @@ def build_predictions(trains):
     return eta, nth, age
 
 
-# ---------- 3. 수집 현황 ----------
+# ---------- 3. 시간표(= 앱 기준 시간) vs 실제 ----------
+
+def load_timetable():
+    """(노선, 역 이름, 요일구분, 열차번호) → 시간표 도착 초. prepare_static.py 가 만든 CSV"""
+    f = DATA / "static" / "timetable.csv"
+    tt = {}
+    if f.exists():
+        import csv
+        with open(f, encoding="utf-8") as fh:
+            for r in csv.DictReader(fh):
+                tt[(r["노선"], r["역"], r["요일"], int(r["열차번호"]))] = int(r["도착_초"])
+    return tt
+
+
+def week_tag(day):
+    wd = dt.date.fromisoformat(day).weekday()
+    return "1" if wd < 5 else ("2" if wd == 5 else "3")
+
+
+def build_schedule(trains, stations):
+    """열차마다 시간표가 있는 역의 '시간표 시각'을 붙이고(tr['s']), 역별 지연 목록을 만듦.
+    실제 시각은 궤적에서 그 역에 처음 잡힌 시각(진입·도착)이라 시간표 도착보다 수십 초 이를 수 있음"""
+    tt = load_timetable()
+    names = {(l, n) for l, n, _, _ in tt}
+    ids = defaultdict(list)
+    for l, st in stations.items():
+        for sid, n in st.items():
+            if (l, n) in names:
+                ids[(l, n)].append(sid)
+    out = []
+    for tr in trains:
+        try:
+            no = int(re.sub(r"\D", "", tr["n"]))
+        except ValueError:
+            continue
+        wk, sched = week_tag(tr["d"]), {}
+        for (l, n), sids in ids.items():
+            if l != tr["l"]:
+                continue
+            plan = tt.get((l, n, wk, no))
+            if plan is None:
+                continue
+            for sid in sids:
+                t = time_at(tr, sid)
+                if t is not None and abs(t - plan) <= 20 * 60:  # 20분 넘게 어긋나면 다른 운행으로 봄
+                    sched[str(sid)] = plan
+                    out.append({"s": n, "l": l, "n": tr["n"], "x": tr["x"], "d": tr["d"], "h": plan,
+                                "dl": round((t - plan) / 60, 1)})
+                    break
+        if sched:
+            tr["s"] = sched
+    return out
+
+
+def load_naver():
+    """naver_check.csv 에 직접 옮겨 적은 네이버 지도 탑승 시간 (채운 줄만)"""
+    f = ROOT / "naver_check.csv"
+    out = []
+    if f.exists():
+        import csv
+        with open(f, encoding="utf-8-sig") as fh:
+            for r in csv.DictReader(fh):
+                m = re.match(r"(\d)호선", r.get("노선", ""))
+                try:
+                    mins = float(r.get("네이버_탑승분") or "")
+                except ValueError:
+                    continue
+                if m:
+                    out.append({"l": "100" + m.group(1), "o": r["출발역"], "d": r["도착역"], "w": r["요일"],
+                                "t": r["출발시각"], "m": mins})
+    return out
+
+
+# ---------- 4. 수집 현황 ----------
 
 def build_health():
     f = DATA / "_log" / "collector.log"
@@ -195,6 +268,7 @@ def build_health():
 def main():
     trains, stations, polls = build_trajectories()
     eta, nth, age = build_predictions(trains)
+    tt = build_schedule(trains, stations)
     lines = {"1001": "1호선", "1002": "2호선", "1003": "3호선", "1004": "4호선", "1005": "5호선",
              "1006": "6호선", "1007": "7호선", "1008": "8호선", "1009": "9호선", "1063": "경의중앙선"}
     by_name = {v: k for k, v in lines.items()}
@@ -204,12 +278,12 @@ def main():
         "stations": {l: {str(k): v for k, v in sorted(s.items())} for l, s in stations.items()},
         # 노선별 수집 시각 [운행일, 초] — 배차 간격이 '수집 공백' 때문에 커 보이는지 거르는 데 씀
         "polls": {by_name.get(l, l): sorted(list(service_day(ts(p))) for p in v) for l, v in polls.items()},
-        "trains": trains, "eta": eta, "nth": nth, "age": age, "health": build_health(),
+        "trains": trains, "tt": tt, "naver": load_naver(), "eta": eta, "nth": nth, "age": age, "health": build_health(),
     }
     SITE.mkdir(exist_ok=True)
     (SITE / "data.js").write_text("window.DATA = " + json.dumps(out, ensure_ascii=False, separators=(",", ":")) + ";\n",
                                   encoding="utf-8")
-    print(f"열차 궤적 {len(trains)}개, 도착 표시 매칭 {len(eta) + len(nth)}건, web/data.js 생성")
+    print(f"열차 궤적 {len(trains)}개, 도착 표시 매칭 {len(eta) + len(nth)}건, 시간표 비교 {len(tt)}건, web/data.js 생성")
 
 
 if __name__ == "__main__":

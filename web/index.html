@@ -175,8 +175,23 @@ footer { margin-top: 72px; padding-top: 18px; border-top: 1px solid var(--line);
     </div>
   </section>
 
+  <section id="late">
+    <div class="sec-head"><span class="sec-no">2</span><h2>시간표(앱)보다 얼마나 늦나</h2></div>
+    <p class="desc">지도 앱의 지하철 시간은 공식 시간표를 바탕으로 합니다. 같은 열차번호의 시간표 도착 시각과 실제로 역에 들어온 시각을 맞춰 봤습니다. 실제 시각은 열차가 역에 진입한 순간이라 시간표보다 수십 초 일찍 잡힐 수 있습니다.</p>
+    <div class="card">
+      <div class="presets" id="lateStations" style="margin:0 0 12px"></div>
+      <div class="seg" id="lateDays" role="group" aria-label="요일" style="margin-bottom:14px">
+        <button data-v="all" aria-pressed="true">전체</button><button data-v="weekday">평일</button><button data-v="weekend">주말</button>
+      </div>
+      <div class="tiles" id="lateTiles"></div>
+      <div class="legend" id="lateLegend"></div>
+      <div class="chart" id="lateChart"></div>
+      <details><summary>표로 보기 · 역별</summary><div id="lateTable"></div></details>
+    </div>
+  </section>
+
   <section id="hw">
-    <div class="sec-head"><span class="sec-no">2</span><h2>배차 간격</h2></div>
+    <div class="sec-head"><span class="sec-no">3</span><h2>배차 간격</h2></div>
     <p class="desc">한 역에 같은 방향 열차가 실제로 몇 분 간격으로 왔는지입니다. 점 하나가 '앞 열차와 다음 열차 사이' 한 번입니다. 수집이 끊긴 구간은 간격이 부풀려 보이므로 뺐습니다.</p>
     <div class="card">
       <div class="controls">
@@ -190,7 +205,7 @@ footer { margin-top: 72px; padding-top: 18px; border-top: 1px solid var(--line);
   </section>
 
   <section id="pred">
-    <div class="sec-head"><span class="sec-no">3</span><h2>도착 안내는 얼마나 맞나</h2></div>
+    <div class="sec-head"><span class="sec-no">4</span><h2>도착 안내는 얼마나 맞나</h2></div>
     <p class="desc">전광판·앱의 도착 안내를 그 열차가 실제로 도착한 시각과 맞춰 봤습니다. 서울교통공사 구간은 "N분 후", 코레일 구간(동암 등)은 "N번째 전역"으로만 안내됩니다.</p>
     <div class="grid2">
       <div class="card">
@@ -218,21 +233,21 @@ footer { margin-top: 72px; padding-top: 18px; border-top: 1px solid var(--line);
   </section>
 
   <section id="health">
-    <div class="sec-head"><span class="sec-no">4</span><h2>수집 현황</h2></div>
+    <div class="sec-head"><span class="sec-no">5</span><h2>수집 현황</h2></div>
     <p class="desc">날짜·시간별로 성공한 API 호출 수입니다. 빈 칸은 수집 계획이 없거나 노트북이 꺼져 있던 시간입니다.</p>
     <div class="card"><div class="chart" id="healthChart"></div></div>
   </section>
 
   <section id="next">
-    <div class="sec-head"><span class="sec-no">5</span><h2>다음 역: 붙일 데이터</h2></div>
+    <div class="sec-head"><span class="sec-no">6</span><h2>다음 역: 붙일 데이터</h2></div>
     <p class="desc">체감 시간·피로도를 설명할 나머지 변수들입니다.</p>
     <ul class="timeline">
-      <li class="on"><b>지하철 열차 위치·도착 안내</b><span class="st">수집 중</span><span class="what">서울 1~9호선·경의중앙선 전체, 대표 환승역·공연장역 / 11월 16일 ~ 22일</span></li>
-      <li><b>서울 버스 차량 위치</b><span class="st">키 대기</span><span class="what">같은 노선 안 차량별 구간 시간 편차(기사 편차의 대리 지표), 지하철 환승 연결</span></li>
-      <li><b>지하철 시간표 = 앱 예상 시간</b><span class="st">예정</span><span class="what">서울 일반 인증키로 받아 ①에 '앱 기준선'으로 겹쳐 표시</span></li>
+      <li class="on"><b>지하철 열차 위치·도착 안내</b><span class="st">수집 중</span><span class="what">서울 1~9호선·경의중앙선 전체, 환승역·직장·번화가·공연장역 / 11월 16일 ~ 24일</span></li>
+      <li class="on"><b>서울 버스 차량 위치</b><span class="st">수집 중</span><span class="what">같은 노선 안 차량별 구간 시간 편차(기사 편차의 대리 지표), 지하철 환승 연결</span></li>
+      <li class="on"><b>지하철 시간표 = 앱 예상 시간</b><span class="st">반영</span><span class="what">사례 역 20곳 시간표, ①의 '시간표(앱)' 기준선과 ②</span></li>
       <li><b>날씨</b><span class="st">예정</span><span class="what">기상청 과거 관측자료(ASOS), 수집 끝난 뒤 한 번에 내려받기</span></li>
       <li><b>공연·경기 일정</b><span class="st">예정</span><span class="what">KOPIS·KBL·KOVO, 공연장역 저녁 데이터와 비교</span></li>
-      <li><b>환승 통로 거리·계단</b><span class="st">예정</span><span class="what">서울교통공사 공개 데이터, 체감 피로도 점수의 재료</span></li>
+      <li class="on"><b>환승 거리·칸 혼잡도·승하차 인원</b><span class="st">받음</span><span class="what">서울교통공사·서울시 공개 데이터, 체감 피로도 점수의 재료</span></li>
     </ul>
   </section>
 
@@ -295,7 +310,7 @@ function scatter(el, pts, opt) {
   let [x0, x1] = opt.xDomain || [Math.min(...pts.map(p => p.x)), Math.max(...pts.map(p => p.x))];
   if (x1 - x0 < 1e-6) { x0 -= 1; x1 += 1; }
   const pad = opt.xDomain ? 0 : (x1 - x0) * 0.03; x0 -= pad; x1 += pad;
-  const ys = pts.map(p => p.y); let y0 = Math.min(0, ...ys), y1 = Math.max(...ys) * 1.1 || 1;
+  const ys = pts.map(p => p.y); let y0 = Math.min(0, ...ys) * (Math.min(...ys) < 0 ? 1.1 : 1), y1 = Math.max(0, ...ys) * 1.1 || 1;
   const yt = niceTicks(y0, y1, 5); y1 = Math.max(y1, yt[yt.length - 1]);
   const X = v => m.l + (v - x0) / (x1 - x0) * (W - m.l - m.r), Y = v => H - m.b - (v - y0) / (y1 - y0) * (H - m.t - m.b);
   const xt = opt.xTicks ? opt.xTicks(x0, x1) : niceTicks(x0, x1, 6);
@@ -303,7 +318,7 @@ function scatter(el, pts, opt) {
   yt.forEach(v => s += `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="${v === 0 ? css('--line') : css('--grid')}" stroke-width="1"/><text x="${m.l - 8}" y="${Y(v) + 4}" text-anchor="end">${v.toLocaleString('ko-KR')}</text>`);
   xt.forEach(v => s += `<text x="${X(v)}" y="${H - 8}" text-anchor="middle">${opt.xFmt ? opt.xFmt(v) : v}</text>`);
   s += `<text x="${m.l - 8}" y="${m.t - 8}" text-anchor="start" style="fill:${css('--ink-2')}">${opt.yLabel || ''}</text>`;
-  (opt.refs || []).forEach(r => s += `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(r.y)}" y2="${Y(r.y)}" stroke="${css('--ink')}" stroke-width="1" stroke-opacity=".5"/><text x="${W - m.r}" y="${Y(r.y) - 6}" text-anchor="end" style="fill:${css('--ink')};font-weight:600">${r.label}</text>`);
+  (opt.refs || []).forEach(r => s += `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(r.y)}" y2="${Y(r.y)}" stroke="${css('--ink')}" stroke-width="1" stroke-opacity=".5"${r.dash ? ' stroke-dasharray="5 4"' : ''}/><text x="${r.left ? m.l + 6 : W - m.r}" y="${Y(r.y) + (r.below ? 15 : -6)}" text-anchor="${r.left ? 'start' : 'end'}" style="fill:${css('--ink')};font-weight:600">${r.label}</text>`);
   pts.forEach(p => { const sr = opt.series[p.s]; s += mark(X(p.x), Y(p.y), sr.color, sr.shape); });
   box.innerHTML = s + '</svg>';
   const svg = box.querySelector('svg');
@@ -435,22 +450,29 @@ function drawOD() {
     if (a == null || b == null || b <= a || b - a > 3 * 3600) return;
     if (loopN(o) && trainDir(tr, o) !== Math.sign(step(o, d))) return;  // 순환선: 반대로 크게 도는 열차 제외
     const mins = (b - a) / 60;
-    pts.push({ x: a / 3600, y: mins, s: tr.x, d: tr.d,
-      tip: `<b>${tr.d.slice(5).replace('-', '/')} ${fmtHM(a)} → ${fmtHM(b)}</b><br>${f1(mins)}분 · ${tr.x ? '급행' : '일반'} ${tr.n}${tr.e ? ` · ${tr.e}행` : ''}` });
+    const plan = tr.s && tr.s[o] != null && tr.s[d] != null ? (tr.s[d] - tr.s[o]) / 60 : null;  // 시간표(앱) 기준
+    pts.push({ x: a / 3600, y: mins, s: tr.x, d: tr.d, plan,
+      tip: `<b>${tr.d.slice(5).replace('-', '/')} ${fmtHM(a)} → ${fmtHM(b)}</b><br>실제 ${f1(mins)}분${plan != null ? ` · 시간표 ${f1(plan)}분` : ''}<br>${tr.x ? '급행' : '일반'} ${tr.n}${tr.e ? ` · ${tr.e}행` : ''}` });
   });
   const ys = pts.map(p => p.y), med = q(ys, .5);
   const medOf = s => q(pts.filter(p => p.s === s).map(p => p.y), .5);
+  const pl = pts.filter(p => p.plan != null), planMed = q(pl.map(p => p.plan), .5), gap = q(pl.map(p => p.y - p.plan), .5);
   drawStrip(l, o, d, med); drawPresets();
   tiles('odTiles', [
     ['관측 열차', unit(pts.length.toLocaleString('ko-KR'), '회'), `${new Set(pts.map(p => p.d)).size}일치`],
-    ['중앙값', unit(pts.length ? f1(med) : '–', '분'), '절반은 이보다 빠름'],
+    ['실제 중앙값', unit(pts.length ? f1(med) : '–', '분'), `일반 ${f1(medOf(0))} · 급행 ${f1(medOf(1))}`],
+    ['시간표 (앱 기준)', unit(pl.length ? f1(planMed) : '–', '분'), pl.length ? `같은 열차 기준 실제가 ${gap >= 0 ? '+' : ''}${f1(gap)}분` : '양 끝역 시간표가 있는 구간만'],
     ['보통 범위', pts.length >= 5 ? unit(`${f1(q(ys, .1))}–${f1(q(ys, .9))}`, '분') : '–', '빠른·느린 10% 제외'],
-    ['일반 / 급행', unit(`${f1(medOf(0))} / ${f1(medOf(1))}`, '분'), '각 중앙값'],
   ]);
   const SER = seriesFor(l), used = [0, 1].filter(s => pts.some(p => p.s === s));
   legend('odLegend', used.map(s => SER[s]));
+  const refs = pts.length >= 3 ? [{ y: med, label: `실제 중앙값 ${f1(med)}분` }] : [];
+  if (pl.length >= 3 && Math.abs(planMed - med) >= 0.3) refs.push({ y: planMed, label: `시간표(앱) ${f1(planMed)}분`, left: true, dash: true, below: planMed < med });
+  // 직접 조회해 옮겨 적은 네이버 지도 탑승 시간 (naver_check.csv)
+  const nv = (D.naver || []).filter(r => r.l === l && r.o === stName(l, o) && r.d === stName(l, d) && (odDays === 'all' || (odDays === 'weekend') === (r.w !== '평일')));
+  if (nv.length) { const nm = q(nv.map(r => r.m), .5); refs.push({ y: nm, label: `네이버 지도 ${f1(nm)}분`, left: true, dash: true, below: nm < med }); }
   scatter('odChart', pts, { series: SER, xFmt: hourFmt, xTicks: hourTicks, yLabel: '소요 시간 (분)',
-    refs: pts.length >= 3 ? [{ y: med, label: `중앙값 ${f1(med)}분` }] : [], aria: '출발 시각별 구간 소요 시간',
+    refs, aria: '출발 시각별 구간 소요 시간',
     emptyMsg: '이 구간을 지난 열차가 아직 없어요. 수집이 쌓이면 자동으로 채워집니다.' });
   const byH = {}; pts.forEach(p => (byH[Math.floor(p.x)] ||= []).push(p.y));
   $('odTable').innerHTML = `<table><tr><th>출발 시간대</th><th>열차</th><th>중앙값(분)</th><th>빠른 10%</th><th>느린 10%</th></tr>` +
@@ -513,6 +535,40 @@ function drawHW() {
 $('hwLine').addEventListener('change', hwStations);
 $('hwStation').addEventListener('change', hwDirs);
 $('hwDir').addEventListener('change', drawHW);
+
+// ---------- 시간표(앱) 대비 지연 ----------
+const TT = D.tt || [];
+let lateKey = '', lateDays = 'all';
+function lateChips() {
+  const cnt = {}; TT.forEach(r => cnt[r.l + '|' + r.s] = (cnt[r.l + '|' + r.s] || 0) + 1);
+  const keys = Object.keys(cnt).sort((a, b) => a.localeCompare(b) || cnt[b] - cnt[a]);
+  if (!lateKey) lateKey = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a])[0] || '';
+  $('lateStations').innerHTML = keys.map(k => { const [l, s] = k.split('|'); return `<button class="preset" aria-pressed="${k === lateKey}" data-k="${k}">${badge(l)}${s}</button>`; }).join('');
+}
+function drawLate() {
+  if (!TT.length) { $('lateTiles').innerHTML = ''; return empty('lateChart', '시간표(data/static/timetable.csv)를 받은 뒤 py build_site.py 를 실행하면 표시돼요.'); }
+  lateChips();
+  const [l, st] = lateKey.split('|'), rows = TT.filter(r => r.l === l && r.s === st && dayOk(r.d, lateDays)), v = rows.map(r => r.dl);
+  tiles('lateTiles', [
+    ['비교한 열차', unit(rows.length.toLocaleString('ko-KR'), '대'), `${new Set(rows.map(r => r.d)).size}일치`],
+    ['지연 중앙값', rows.length ? unit((q(v, .5) > 0 ? '+' : '') + f1(q(v, .5)), '분') : '–', '+ = 시간표보다 늦게 옴'],
+    ['3분 이상 늦음', unit(rows.length ? Math.round(v.filter(x => x >= 3).length / v.length * 100) : '–', '%'), '앱 시간을 믿으면 놓칠 수 있는 비율'],
+    ['가장 늦었던 열차', rows.length ? unit('+' + f1(Math.max(...v)), '분') : '–', ''],
+  ]);
+  const SER = seriesFor(l), used = [0, 1].filter(s => rows.some(r => r.x === s)); legend('lateLegend', used.map(s => SER[s]));
+  scatter('lateChart', rows.map(r => ({ x: r.h / 3600, y: r.dl, s: r.x,
+    tip: `<b>${r.d.slice(5).replace('-', '/')} 시간표 ${fmtHM(r.h)}</b><br>실제 ${r.dl >= 0 ? '+' : ''}${f1(r.dl)}분 · ${r.x ? '급행' : '일반'} ${r.n}` })),
+    { series: SER, xFmt: hourFmt, xTicks: hourTicks, yLabel: '실제 − 시간표 (분)', h: 280, refs: [{ y: 0, label: '시간표 정각', left: true, below: true }],
+      aria: '시간표 대비 실제 도착 지연', emptyMsg: '이 조건에 맞는 열차가 아직 없어요.' });
+  const by = {}; TT.filter(r => dayOk(r.d, lateDays)).forEach(r => (by[r.l + '|' + r.s] ||= []).push(r.dl));
+  $('lateTable').innerHTML = `<table><tr><th>역</th><th>열차</th><th>중앙값(분)</th><th>3분 이상 늦음</th><th>늦은 10%</th></tr>` +
+    Object.entries(by).sort((a, b) => q(b[1], .5) - q(a[1], .5)).map(([k, a]) => { const [l, s] = k.split('|'); return `<tr><td>${LINES[l] || l}호선 ${s}</td><td>${a.length}</td><td>${f1(q(a, .5))}</td><td>${Math.round(a.filter(x => x >= 3).length / a.length * 100)}%</td><td>${f1(q(a, .9))}</td></tr>`; }).join('') + '</table>';
+}
+$('lateStations').addEventListener('click', e => { const b = e.target.closest('.preset'); if (b) { lateKey = b.dataset.k; drawLate(); } });
+$('lateDays').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return; lateDays = b.dataset.v;
+  $('lateDays').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b)); drawLate();
+});
 
 // ---------- ③ 도착 안내 ----------
 function stationChips(el, rows, onPick) {
@@ -610,10 +666,10 @@ if (lineIds.length) {
 } else { ['odChart', 'hwChart'].forEach(e => empty(e)); }
 stationChips('etaStations', D.eta, s => { etaSt = s; drawEta(s); });
 stationChips('nthStations', D.nth, s => { nthSt = s; drawNth(s); });
-drawAge(); drawHealth(); drawDeco();
+drawAge(); drawHealth(); drawDeco(); drawLate();
 
 let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => {
-  drawDeco(); drawHealth(); drawEta(etaSt); drawNth(nthSt); if (lineIds.length) { drawOD(); drawHW(); }
+  drawDeco(); drawHealth(); drawLate(); drawEta(etaSt); drawNth(nthSt); if (lineIds.length) { drawOD(); drawHW(); }
 }, 150); });
 })();
 </script>

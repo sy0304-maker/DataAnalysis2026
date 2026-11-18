@@ -5,6 +5,7 @@
 1. 환승 거리·소요시간   공공데이터포털 15044419 (서울교통공사, 1~8호선 환승역 145곳, 보행속도 1.2m/s 기준)
 2. 칸 혼잡도 (30분 단위) 서울 열린데이터광장 OA-12928 (서울교통공사 1~8호선, 정원 대비 승차인원 %, 평일/토/일)
 3. 시간대별 승하차 인원  서울 열린데이터광장 CardSubwayTime API (1~9호선, 월별, SEOUL_OPENAPI_KEY 필요)
+4. 역별 시간표          서울 열린데이터광장 SearchSTNTimeTableByIDService (사례 역들, 평일/토/휴일, 양방향)
 """
 import csv
 import datetime as dt
@@ -130,9 +131,49 @@ def ridership():
     write_csv("ridership_hourly.csv", ["월", "호선", "역", "시", "승차", "하차"], out)
 
 
+# ---------- 4. 시간표 (= 지도 앱이 쓰는 기준 시간) ----------
+
+# 사례 구간의 양 끝역 + 도착 안내 수집역. 역 하나에 노선이 여럿이면 1~9호선 전부 받음
+TT_STATIONS = ["동암", "신도림", "구일", "시청", "신촌", "사당", "동대문역사문화공원", "고속터미널", "종로3가",
+               "종합운동장", "왕십리", "올림픽공원", "강남", "김포공항", "여의도", "가산디지털단지", "홍대입구",
+               "성수", "건대입구", "공덕"]
+
+
+def timetable():
+    key = load_env().get("SEOUL_OPENAPI_KEY", "")
+    q = urllib.parse.quote
+
+    def api(svc, args):
+        d = json.loads(http_get(f"http://openapi.seoul.go.kr:8088/{key}/json/{svc}/{args}"))
+        return (d.get(svc) or {}).get("row") or []
+
+    def sec(s):
+        h, m, x = (int(v) for v in s.split(":"))
+        t = h * 3600 + m * 60 + x
+        return t + 86400 if t < 3 * 3600 else t  # 새벽 0~3시는 전날 운행의 연장
+
+    out = []
+    for name in TT_STATIONS:
+        for st in api("SearchInfoBySubwayNameService", f"1/20/{q(name)}"):
+            m = re.match(r"0(\d)호선", st.get("LINE_NUM", ""))
+            if not m:
+                continue
+            line = "100" + m.group(1)
+            for week in ("1", "2", "3"):        # 평일, 토요일, 휴일
+                for way in ("1", "2"):          # 상행·내선, 하행·외선
+                    for r in api("SearchSTNTimeTableByIDService", f"1/1000/{st['STATION_CD']}/{week}/{way}"):
+                        no = re.sub(r"\D", "", r.get("TRAIN_NO") or "")
+                        arr, dep = r.get("ARRIVETIME") or "00:00:00", r.get("LEFTTIME") or "00:00:00"
+                        if not no or (arr == "00:00:00" and dep == "00:00:00"):
+                            continue
+                        t = sec(dep if arr == "00:00:00" else arr)  # 출발역은 도착 시각이 없음
+                        out.append([line, name, week, way, int(no), t, r.get("EXPRESS_YN") == "D", r.get("SUBWAYENAME")])
+    write_csv("timetable.csv", ["노선", "역", "요일", "방향", "열차번호", "도착_초", "급행", "행선지"], out)
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
-    for f in (transfer_distance, crowding, ridership):
+    for f in (transfer_distance, crowding, ridership, timetable):
         try:
             f()
         except Exception as e:  # 하나 실패해도 나머지는 받음
