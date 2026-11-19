@@ -87,7 +87,9 @@ def build_trajectories():
         if r.get("trainSttus") == "3" or not r.get("recptnDt"):  # 3=전역출발: 역 사이라 제외
             continue
         sid = int(r["statnId"])
-        stations[r["subwayId"]][sid] = r["statnNm"].removesuffix("지선") or r["statnNm"]  # '성수지선' → '성수'
+        # '성수지선'·'성수종착' → '성수', '올림픽공원(한국체대)' → '올림픽공원'
+        nm = re.sub(r"\(.*\)$", "", r["statnNm"]).removesuffix("지선").removesuffix("종착")
+        stations[r["subwayId"]][sid] = nm or r["statnNm"]
         events[(r["subwayId"], r["trainNo"])][(sid, ts(r["recptnDt"]))] = (r.get("directAt") == "1", r.get("statnTnm"))
 
     trains = []
