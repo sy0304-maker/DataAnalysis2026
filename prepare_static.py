@@ -6,11 +6,13 @@
 2. 칸 혼잡도 (30분 단위) 서울 열린데이터광장 OA-12928 (서울교통공사 1~8호선, 정원 대비 승차인원 %, 평일/토/일)
 3. 시간대별 승하차 인원  서울 열린데이터광장 CardSubwayTime API (1~9호선, 월별, SEOUL_OPENAPI_KEY 필요)
 4. 역별 시간표          서울 열린데이터광장 SearchSTNTimeTableByIDService (사례 역들, 평일/토/휴일, 양방향)
+5. 날씨 (시간별)        공공데이터포털 기상청 ASOS 시간자료 (서울 108, DATA_GO_KR_KEY)
 """
 import csv
 import datetime as dt
 import json
 import re
+import sys
 import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -171,9 +173,30 @@ def timetable():
     write_csv("timetable.csv", ["노선", "역", "요일", "방향", "열차번호", "도착_초", "급행", "행선지"], out)
 
 
+# ---------- 5. 날씨 (서울 종로 관측소 108, 시간별) ----------
+
+def weather():
+    """수집 기간 첫날부터 어제까지. ASOS 시간자료는 전날까지만 조회됨"""
+    key = load_env().get("DATA_GO_KR_KEY", "").strip()
+    cfg = json.loads((ROOT / "collect_config.json").read_text(encoding="utf-8"))
+    start = dt.date.fromisoformat(cfg["start_date"])
+    end = min(dt.date.fromisoformat(cfg["end_date"]), dt.date.today() - dt.timedelta(days=1))
+    url = ("http://apis.data.go.kr/1360000/AsosHourlyInfoService/getWthrDataList"
+           f"?serviceKey={key}&pageNo=1&numOfRows=999&dataType=JSON&dataCd=ASOS&dateCd=HR"
+           f"&startDt={start:%Y%m%d}&startHh=00&endDt={end:%Y%m%d}&endHh=23&stnIds=108")
+    items = json.loads(http_get(url))["response"]["body"]["items"]["item"]
+    num = lambda v: float(v) if v not in (None, "") else 0.0
+    out = [[i["tm"], num(i.get("ta")), num(i.get("rn")), num(i.get("hm")), num(i.get("ws")), num(i.get("dsnw"))]
+           for i in items]
+    write_csv("weather_hourly.csv", ["시각", "기온_c", "강수_mm", "습도_pct", "풍속_ms", "적설_cm"], out)
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
-    for f in (transfer_distance, crowding, ridership, timetable):
+    only = set(sys.argv[1:])  # 예: py prepare_static.py weather
+    for f in (transfer_distance, crowding, ridership, timetable, weather):
+        if only and f.__name__ not in only:
+            continue
         try:
             f()
         except Exception as e:  # 하나 실패해도 나머지는 받음
